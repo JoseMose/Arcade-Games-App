@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.game2048-container {
+  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.game2048-leaderboard {
+  min-width: 200px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 16px;
+  padding: 24px 16px;
+  box-shadow: 0 4px 24px #ff008044;
+}
+
+.game2048-leaderboard h2 {
+  color: #ff0080;
+  font-size: 1.2rem;
+  margin-bottom: 18px;
+  text-align: center;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px #fff, 0 0 16px #ff0080;
+}
+
+.game2048-leaderboard ol {
+  padding-left: 40px;
+  font-size: 0.9rem;
+  color: #222;
+}
+
+.game2048-reset-btn {
+  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  font-size: 1rem;
+  padding: 12px 32px;
+  background: linear-gradient(90deg, #ff0080 0%, #7928ca 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px #ff008088;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.game2048-reset-btn:hover {
+  transform: scale(1.08) rotate(-2deg);
+  box-shadow: 0 8px 32px #ff0080cc;
+  background: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
+}
