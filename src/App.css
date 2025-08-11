@@ -59,3 +59,52 @@ body {
   font-size: 0.9rem;
   opacity: 0.7;
 }
+
+.arcade-btn {
+  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  font-size: 1rem;
+  margin: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #ff0080 0%, #7928ca 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px #ff0080aa;
+  transition: background 0.3s ease;
+}
+
+.arcade-btn:hover {
+  background: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
+}
+
+.corner-links {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  z-index: 9999;
+}
+
+.corner-links button {
+  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  font-size: 1rem;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, #ff0080 0%, #7928ca 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px #ff0080aa;
+  transition: background 0.3s ease;
+}
+
+.corner-links button:hover {
+  background: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
+}
+
+.corner-links a {
+  text-decoration: none;
+}

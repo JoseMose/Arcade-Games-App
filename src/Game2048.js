@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Phaser from 'phaser';
-import { collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import './Game2048.css';
+import { Link } from 'react-router-dom';
 
 function Game2048({ db }) {
   const gameRef = useRef(null);
@@ -21,11 +22,26 @@ function Game2048({ db }) {
 
   // Add score to Firestore and refresh leaderboard
   const updateLeaderboard = useCallback(async (score) => {
-    if (score > 0) {
-      await addDoc(collection(db, 'leaderboard2048'), { score });
-      await fetchLeaderboard();
+  if (score > 0) {
+    // Add new score
+    await addDoc(collection(db, 'leaderboard2048'), { score });
+    await fetchLeaderboard();
+
+    // Cleanup: keep only top 10 scores
+    try {
+      const qAll = query(collection(db, 'leaderboard2048'), orderBy('score', 'desc'));
+      const allSnapshot = await getDocs(qAll);
+      if (allSnapshot.size > 10) {
+        const docsToDelete = allSnapshot.docs.slice(10); // docs after top 10
+        for (const docSnap of docsToDelete) {
+          await deleteDoc(doc(db, 'leaderboard2048', docSnap.id));
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up leaderboard:', error);
     }
-  }, [db, fetchLeaderboard]);
+  }
+}, [db, fetchLeaderboard]);
 
   // Reset handler (just increments gameKey to remount Phaser)
   const handleReset = () => {
@@ -306,6 +322,7 @@ function Game2048({ db }) {
       <div>
         <div ref={gameRef} key={gameKey} style={{ width: 600, height: 650 }} />
         <button className="game2048-reset-btn" onClick={handleReset}>Reset</button>
+        <Link to="/" className='game2048-reset-btn'>Back to Home</Link>
       </div>
       <div className="game2048-leaderboard">
         <h2>Leaderboard</h2>
