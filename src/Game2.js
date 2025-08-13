@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Phaser from 'phaser';
 import { collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom'; // <-- Add this import
 import './Game2048.css';
 
 function Game2({ db }) {
@@ -8,6 +9,7 @@ function Game2({ db }) {
   const gameInstance = useRef(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [gameKey, setGameKey] = useState(0);
+  const navigate = useNavigate(); // <-- Add this line
 
   // Fetch leaderboard from Firestore
   const fetchLeaderboard = useCallback(async () => {
@@ -16,7 +18,7 @@ function Game2({ db }) {
       const querySnapshot = await getDocs(q);
       const scores = [];
       querySnapshot.forEach(doc => {
-        scores.push(doc.data().score);
+        scores.push(doc.data()); // Push the whole data object
       });
       setLeaderboard(scores);
     } catch (error) {
@@ -67,8 +69,10 @@ function Game2({ db }) {
       }
 
       await fetchLeaderboard();
+    } else {
+      // Always refresh leaderboard, even if score not high enough
+      await fetchLeaderboard();
     }
-    // else do nothing if score not high enough
 
   } catch (error) {
     console.error('Error updating leaderboard:', error);
@@ -183,7 +187,7 @@ function Game2({ db }) {
             if (this.updateLeaderboard) {
               this.updateLeaderboard(this.score);
             }
-            alert(`Game Over! Enemy strength ${enemyStrength} >= your score ${this.score}`);
+            // alert(`Game Over! Enemy strength ${enemyStrength} >= your score ${this.score}`);
             this.scene.restart();
             this.score = 0;
             this.scoreText.setText('SCORE: 0');
@@ -248,13 +252,14 @@ function Game2({ db }) {
       <div>
         <div ref={gameRef} key={gameKey} style={{ width: 800, height: 600 }} />
         <button className="game2048-reset-btn" onClick={handleReset}>Reset</button>
+        <button className="game2048-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
       </div>
       <div className="game2048-leaderboard" style={{ minWidth: 220 }}>
         <h2>Leaderboard</h2>
         <ol>
           {leaderboard.length === 0 && <li>No scores yet</li>}
-          {leaderboard.map((score, idx) => (
-            <li key={idx}>{score}</li>
+          {leaderboard.map((entry, idx) => (
+            <li key={idx}>{entry.score}</li>
           ))}
         </ol>
       </div>
