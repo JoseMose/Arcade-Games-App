@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Phaser from 'phaser';
 import { collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom'; // <-- Add this import
-import './Game2048.css';
+import './Game2.css';
 
 function Game2({ db }) {
   const gameRef = useRef(null);
@@ -248,13 +248,13 @@ function Game2({ db }) {
   }, [gameKey, updateLeaderboard]);
 
   return (
-    <div className="game2048-container" style={{ justifyContent: 'center' }}>
+    <div className="game2-container">
       <div>
         <div ref={gameRef} key={gameKey} style={{ width: 800, height: 600 }} />
-        <button className="game2048-reset-btn" onClick={handleReset}>Reset</button>
-        <button className="game2048-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
+        <button className="game2-reset-btn" onClick={handleReset}>Reset</button>
+        <button className="game2-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
       </div>
-      <div className="game2048-leaderboard" style={{ minWidth: 220 }}>
+      <div className="game2-leaderboard">
         <h2>Leaderboard</h2>
         <ol>
           {leaderboard.length === 0 && <li>No scores yet</li>}

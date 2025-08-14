@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* GameContainer.css */
 
-/* Game2.css */
-
-.game2-container {
+.game-container-main {
   font-family: 'Press Start 2P', cursive, Arial, sans-serif;
   display: flex;
   flex-direction: row;
@@ -15,18 +13,28 @@
 }
 
 @media (max-width: 900px) {
-  .game2-container {
+  .game-container-main {
     flex-direction: column;
     align-items: center;
     gap: 24px;
     margin-top: 16px;
   }
-  .game2-leaderboard {
+  .game-container-leaderboard {
     margin-top: 0;
   }
 }
 
-.game2-leaderboard {
+#phaser-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  min-width: 260px;
+  margin: 0 auto;
+}
+
+.game-container-leaderboard {
   min-width: 220px;
   background: #222;
   color: #fff;
@@ -35,7 +43,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-.game2-reset-btn {
+.game-container-reset-btn {
   font-family: inherit;
   font-size: 1.2em;
   padding: 0.75em 2em;
@@ -48,6 +56,6 @@
   transition: background 0.2s;
 }
 
-.game2-reset-btn:hover {
+.game-container-reset-btn:hover {
   background: #e65100;
 }

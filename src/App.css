@@ -17,8 +17,14 @@ body {
   background: none;
 }
 
+.arcade-home, #phaser-container {
+  width: 100vw;
+  max-width: 100%;
+  min-width: 0;
+}
+
 .arcade-title {
-  font-size: 3rem;
+  font-size: 2em;
   color: #ff0080;
   text-shadow: 0 0 10px #fff, 0 0 20px #ff0080, 0 0 40px #ff0080;
   margin-bottom: 40px;
@@ -34,15 +40,15 @@ body {
 
 .arcade-btn {
   font-family: 'Press Start 2P', cursive, Arial, sans-serif;
-  font-size: 1.2rem;
-  padding: 18px 40px;
+  font-size: 1.2em;
+  padding: 0.75em 2em;
+  margin: 0.5em 0;
   background: linear-gradient(90deg, #ff0080 0%, #7928ca 100%);
   color: #fff;
   border: none;
   border-radius: 16px;
   box-shadow: 0 4px 20px #ff008088;
   cursor: pointer;
-  margin-top: 20px;
   transition: transform 0.2s, box-shadow 0.2s;
   outline: none;
 }
@@ -107,4 +113,10 @@ body {
 
 .corner-links a {
   text-decoration: none;
+}
+
+@media (max-width: 600px) {
+  .arcade-title { font-size: 1.5em; }
+  #phaser-container { width: 100vw; height: 60vw; }
+  .arcade-btn { font-size: 1em; padding: 0.5em 1em; }
 }
