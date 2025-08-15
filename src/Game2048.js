@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Phaser from 'phaser';
 import { collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import './Game2048.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Game2048({ db }) {
   const gameRef = useRef(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [gameKey, setGameKey] = useState(0);
+  const navigate = useNavigate();
 
   // Fetch leaderboard from Firestore
   const fetchLeaderboard = useCallback(async () => {
@@ -309,7 +310,7 @@ function Game2048({ db }) {
       height: 650,
       backgroundColor: '#faf8ef',
       scene: [Game2048Scene],
-      parent: gameRef.current
+      parent: 'game2048-board' // <-- Use the string ID
     };
     const game = new Phaser.Game(config);
     return () => {
@@ -318,20 +319,20 @@ function Game2048({ db }) {
   }, [gameKey, updateLeaderboard]);
 
   return (
-    <div className="game2048-container">
-      <div>
-        <div ref={gameRef} key={gameKey} style={{ width: 600, height: 650 }} />
+    <div className="game2048-main">
+      <div className="game2048-center">
+        <div id="game2048-board" style={{ width: 600, height: 650 }}></div>
         <button className="game2048-reset-btn" onClick={handleReset}>Reset</button>
-        <Link to="/" className='game2048-reset-btn'>Back to Home</Link>
-      </div>
-      <div className="game2048-leaderboard">
-        <h2>Leaderboard</h2>
-        <ol>
-          {leaderboard.length === 0 && <li>No scores yet</li>}
-          {leaderboard.map((score, idx) => (
-            <li key={idx}>{score}</li>
-          ))}
-        </ol>
+        <button className="game2048-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
+        <div className="game2048-leaderboard">
+          <h2>Leaderboard</h2>
+          <ol>
+            {leaderboard.length === 0 && <li>No scores yet</li>}
+            {leaderboard.map((entry, idx) => (
+              <li key={idx}>{entry.score}</li>
+            ))}
+          </ol>
+        </div>
       </div>
     </div>
   );

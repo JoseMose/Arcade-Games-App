@@ -10,15 +10,17 @@ function Home() {
   return (
     <div className="arcade-home">
       <div className="arcade-title">🎮 Arcade Home 🎮</div>
-      <Link to="/2048">
-        <button className="arcade-btn">Play 2048</button>
-      </Link>
-      <Link to="/game2">
-        <button className="arcade-btn">Play Phaser Game</button>
-      </Link>
-      <Link to="/flappy">
-        <button className="arcade-btn">Play Future Bird</button>
-      </Link>
+      <div className="arcade-btn-group">
+        <Link to="/2048">
+          <button className="arcade-btn">Play 2048</button>
+        </Link>
+        <Link to="/game2">
+          <button className="arcade-btn">Play Enemy Game</button>
+        </Link>
+        <Link to="/flappy">
+          <button className="arcade-btn">Play Future Bird</button>
+        </Link>
+      </div>
       <div className="arcade-footer">Enjoy classic games with a modern twist!</div>
     </div>
   );

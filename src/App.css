@@ -17,71 +17,59 @@ body {
   background: none;
 }
 
-.arcade-home, #phaser-container {
-  width: 100vw;
-  max-width: 100%;
-  min-width: 0;
+.arcade-home {
+  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 12px 4px;
+  background: #222;
+  color: #fff;
+  box-sizing: border-box;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .arcade-title {
-  font-size: 2em;
-  color: #ff0080;
-  text-shadow: 0 0 10px #fff, 0 0 20px #ff0080, 0 0 40px #ff0080;
-  margin-bottom: 40px;
-  animation: bounce 1.5s infinite alternate;
-  letter-spacing: 2px;
+  font-size: 1.5em;
+  margin-bottom: 24px;
+  text-align: center;
 }
 
-@keyframes bounce {
-  to {
-    transform: translateY(-20px) scale(1.05);
-  }
+.arcade-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 260px;
+  align-items: center;
 }
 
 .arcade-btn {
-  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
-  font-size: 1.2em;
-  padding: 0.75em 2em;
-  margin: 0.5em 0;
-  background: linear-gradient(90deg, #ff0080 0%, #7928ca 100%);
-  color: #fff;
+  font-family: inherit;
+  font-size: 1em;
+  padding: 0.5em 1.2em;
+  border-radius: 8px;
   border: none;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px #ff008088;
+  background: #ff9800;
+  color: #fff;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  outline: none;
+  transition: background 0.2s;
+  width: 100%;
+  max-width: 260px;
 }
 
 .arcade-btn:hover {
-  transform: scale(1.08) rotate(-2deg);
-  box-shadow: 0 8px 32px #ff0080cc;
-  background: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
+  background: #e65100;
 }
 
 .arcade-footer {
-  margin-top: 60px;
-  color: #222;
-  font-size: 0.9rem;
+  margin-top: 24px;
+  font-size: 0.9em;
+  text-align: center;
   opacity: 0.7;
-}
-
-.arcade-btn {
-  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
-  font-size: 1rem;
-  margin: 10px;
-  padding: 12px 24px;
-  background: linear-gradient(90deg, #ff0080 0%, #7928ca 100%);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 4px 10px #ff0080aa;
-  transition: background 0.3s ease;
-}
-
-.arcade-btn:hover {
-  background: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
 }
 
 .corner-links {
@@ -116,7 +104,26 @@ body {
 }
 
 @media (max-width: 600px) {
-  .arcade-title { font-size: 1.5em; }
-  #phaser-container { width: 100vw; height: 60vw; }
-  .arcade-btn { font-size: 1em; padding: 0.5em 1em; }
+  .arcade-home {
+    min-height: 70vh;
+    max-width: 98vw;
+    padding: 8px 2px;
+  }
+  .arcade-title {
+    font-size: 1.1em;
+    margin-bottom: 12px;
+  }
+  .arcade-btn {
+    font-size: 0.95em;
+    padding: 0.4em 0.8em;
+    max-width: 98vw;
+  }
+  .arcade-btn-group {
+    max-width: 98vw;
+    gap: 8px;
+  }
+  .arcade-footer {
+    font-size: 0.8em;
+    margin-top: 16px;
+  }
 }
