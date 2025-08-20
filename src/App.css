@@ -6,6 +6,8 @@ body {
   min-height: 100vh;
   background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
   font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  /* Add a subtle glow to the whole page for arcade effect */
+  box-shadow: 0 0 40px #ff008033 inset;
 }
 
 .App-header, .arcade-home {
@@ -18,112 +20,106 @@ body {
 }
 
 .arcade-home {
-  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 80vh;
-  padding: 12px 4px;
-  background: #222;
-  color: #fff;
+  min-height: 100vh;
+  width: 100vw;
   box-sizing: border-box;
-  max-width: 400px;
-  margin: 0 auto;
+  background: none;
+  /* Add a slight blur for depth */
+  backdrop-filter: blur(1px);
 }
 
 .arcade-title {
-  font-size: 1.5em;
-  margin-bottom: 24px;
+  animation: bounce 1.5s infinite alternate;
+  color: #ff0080;
+  font-size: 3rem;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
   text-align: center;
+  text-shadow: 0 0 10px #fff, 0 0 20px #ff0080, 0 0 40px #ff0080, 0 0 60px #ff80bf;
+  /* Add a border for extra arcade pop */
+  border-bottom: 4px solid #ff0080;
+  padding-bottom: 10px;
 }
 
 .arcade-btn-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
   width: 100%;
-  max-width: 260px;
+  max-width: 340px;
   align-items: center;
 }
 
 .arcade-btn {
-  font-family: inherit;
-  font-size: 1em;
-  padding: 0.5em 1.2em;
-  border-radius: 8px;
+  background: linear-gradient(90deg,#ff0080,#7928ca);
   border: none;
-  background: #ff9800;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px #ff008088, 0 1px 2px #fff2 inset;
   color: #fff;
   cursor: pointer;
-  transition: background 0.2s;
+  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  font-size: 1.1rem;
+  margin: 10px;
+  padding: 16px 28px;
+  transition: background .3s, transform .1s, box-shadow .2s;
   width: 100%;
-  max-width: 260px;
+  max-width: 340px;
+  letter-spacing: 1px;
+  outline: none;
+  /* Arcade border effect */
+  border-bottom: 3px solid #fff2;
 }
 
-.arcade-btn:hover {
-  background: #e65100;
+.arcade-btn:hover, .arcade-btn:focus {
+  background: linear-gradient(90deg, #ff80bf 0%, #ff0080 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 20px #ff0080cc, 0 1px 2px #fff2 inset;
 }
 
 .arcade-footer {
-  margin-top: 24px;
-  font-size: 0.9em;
-  text-align: center;
-  opacity: 0.7;
-}
-
-.corner-links {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: row;
-  gap: 15px;
-  z-index: 9999;
-}
-
-.corner-links button {
-  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  color: #222;
   font-size: 1rem;
-  padding: 12px 24px;
-  background: linear-gradient(90deg, #ff0080 0%, #7928ca 100%);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 4px 10px #ff0080aa;
-  transition: background 0.3s ease;
+  margin-top: 60px;
+  opacity: .8;
+  text-align: center;
+  /* Add a subtle arcade underline */
+  border-top: 2px dashed #ff0080;
+  padding-top: 12px;
+  letter-spacing: 1px;
 }
 
-.corner-links button:hover {
-  background: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
-}
-
-.corner-links a {
-  text-decoration: none;
-}
-
+/* Mobile styles override */
 @media (max-width: 600px) {
-  .arcade-home {
-    min-height: 70vh;
-    max-width: 98vw;
-    padding: 8px 2px;
-  }
   .arcade-title {
-    font-size: 1.1em;
-    margin-bottom: 12px;
+    font-size: 1.3em;
+    margin-bottom: 18px;
+    border-bottom-width: 2px;
+    padding-bottom: 6px;
   }
   .arcade-btn {
-    font-size: 0.95em;
-    padding: 0.4em 0.8em;
+    font-size: 1em;
+    padding: 0.8em 1em;
     max-width: 98vw;
+    border-radius: 12px;
   }
   .arcade-btn-group {
     max-width: 98vw;
-    gap: 8px;
+    gap: 10px;
   }
   .arcade-footer {
-    font-size: 0.8em;
-    margin-top: 16px;
+    font-size: 0.9em;
+    margin-top: 24px;
+    border-top-width: 1px;
+    padding-top: 6px;
   }
+}
+
+/* Add the bounce keyframes at the end of your CSS file */
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-20px); }
 }

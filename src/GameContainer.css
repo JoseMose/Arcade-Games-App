@@ -34,13 +34,27 @@
   margin: 0 auto;
 }
 
-.game-container-leaderboard {
+/* Legacy leaderboard style (unused) kept for reference */
+.game-container-leaderboard { display:none; }
+
+/* Flappy leaderboard unified arcade style */
+.flappy-leaderboard {
   min-width: 220px;
-  background: #222;
+  background: linear-gradient(90deg,#7928ca 0%, #ff0080 100%);
   color: #fff;
-  border-radius: 12px;
-  padding: 16px 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 18px;
+  padding: 20px 20px 24px;
+  box-shadow: 0 6px 28px #ff008055;
+  font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+  max-width: 320px;
+}
+.flappy-leaderboard h2 { margin:0 0 18px; text-align:center; font-size:1.2rem; letter-spacing:1px; text-shadow:0 0 6px #fff,0 0 16px #ff0080; }
+.flappy-leaderboard ol { padding-left:42px; margin:0; font-size:0.95rem; }
+.flappy-leaderboard li { margin-bottom:6px; color:#fffbe7; }
+
+@media (max-width: 900px) {
+  .flappy-leaderboard { width:100%; max-width:98vw; }
+  .flappy-leaderboard ol { padding-left:30px; }
 }
 
 .game-container-reset-btn {

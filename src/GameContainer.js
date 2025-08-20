@@ -15,28 +15,31 @@ export default function GameContainer() {
   };
 
   useEffect(() => {
-    // Responsive game size for mobile and desktop
-    const isMobile = window.innerWidth < 600;
-    const width = isMobile ? window.innerWidth * 0.98 : 800;
-    const height = isMobile ? window.innerHeight * 0.55 : 600;
-
     const config = {
       type: Phaser.AUTO,
-      width: Math.round(width),
-      height: Math.round(height),
+      parent: 'phaser-container',
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 800,
+        height: 600
+      },
       backgroundColor: '#000000',
       physics: {
         default: 'arcade',
         arcade: { gravity: { y: 500 } }
       },
-      scene: [FlappyBird],
-      parent: 'phaser-container'
+      scene: [FlappyBird]
     };
-
     const game = new Phaser.Game(config);
     game.db = db;
 
+    const handleResize = () => {
+      game.scale.refresh();
+    };
+    window.addEventListener('resize', handleResize);
     return () => {
+      window.removeEventListener('resize', handleResize);
       game.destroy(true);
     };
   }, []);
@@ -44,12 +47,13 @@ export default function GameContainer() {
   return (
     <div style={{
       display: 'flex',
-      flexDirection: 'row',
+      flexDirection: window.innerWidth < 900 ? 'column' : 'row',
       alignItems: 'flex-start',
       gap: 20,
       width: '100vw',
       maxWidth: '100%',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      padding: 'calc(60px + env(safe-area-inset-top,0)) 12px 48px'
     }}>
       <div style={{
         display: 'flex',
@@ -65,7 +69,8 @@ export default function GameContainer() {
             width: '100%',
             maxWidth: 800,
             minWidth: 260,
-            height: 'auto'
+            aspectRatio: '4 / 3',
+            position: 'relative'
           }}
         ></div>
         <div>

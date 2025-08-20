@@ -1,5 +1,45 @@
 # Getting Started with Create React App
 
+## Firebase / Deployment Notes
+
+### Toolchain Versions
+- Use an LTS Node version (e.g. Node 20) for Firebase deploys. Deploying RTDB rules failed under Node 23 with newer firebase-tools (rules body not sent).
+- Working combo verified: firebase-tools 12.9.1 + Node 23 (older CLI) OR latest firebase-tools + Node 20.
+
+### Realtime Database
+- Project does NOT use Realtime Database; configuration removed from `firebase.json` and `databaseURL` removed from `src/firebase.js` to avoid deploy noise.
+- If you later add RTDB usage, reintroduce a minimal rules file and config.
+
+### Firestore Leaderboards
+Collections used:
+- `leaderboard2048` (score only)
+- `leaderboardEnemyGame` (score only)
+- `leaderboardFlappy` (name + score)
+
+Security rules (see `firestore.rules`):
+- Public read of leaderboards.
+- Restricted create with field validation & size/number limits.
+- No client update/delete (cleanup should be a backend process / Cloud Function; current client-side delete logic may fail once stricter auth is enforced).
+
+### Hardening Suggestions
+- Replace the temporary date gate (currently year 2100) with authenticated logic (e.g. require auth, or signed callable Cloud Function) before production.
+- Move leaderboard trimming (deleting extra docs) to a scheduled Cloud Function with Admin SDK so client cannot delete.
+
+### Deploy Commands (examples)
+```
+# Use Node 20 (if using fnm or nvm)
+firebase deploy --only hosting
+firebase deploy --only firestore:rules
+firebase deploy --only database
+```
+
+### Known Issue (Documented)
+Under Node 23 + newer firebase-tools a regression caused RTDB rules uploads to send only `{dryRun:true}` leading to `Expected 'rules' property` errors. Downgrading the CLI or using Node 20 resolved it.
+
+## Firebase Config
+The placeholder values in `src/firebase.js` (apiKey, appId) should be replaced with your actual config. Avoid committing secrets beyond the standard public web Firebase config.
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

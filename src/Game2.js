@@ -9,6 +9,7 @@ function Game2({ db }) {
   const gameInstance = useRef(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [gameKey, setGameKey] = useState(0);
+  const directionRef = useRef({ up:false, down:false, left:false, right:false });
   const navigate = useNavigate(); // <-- Add this line
 
   // Fetch leaderboard from Firestore
@@ -92,10 +93,11 @@ function Game2({ db }) {
 
     // Define the Phaser scene class, pass updateLeaderboard via constructor
     class EnemyGameScene extends Phaser.Scene {
-      constructor(updateLeaderboardCallback) {
+      constructor(updateLeaderboardCallback, dirRef) {
         super('enemyGame');
         this.score = 0;
         this.updateLeaderboard = updateLeaderboardCallback;
+        this.dirRef = dirRef;
       }
 
       preload() {
@@ -207,11 +209,13 @@ function Game2({ db }) {
       }
 
       update() {
-        this.player.setVelocity(0);
-        if (this.cursors.left.isDown) this.player.setVelocityX(-200);
-        else if (this.cursors.right.isDown) this.player.setVelocityX(200);
-        if (this.cursors.up.isDown) this.player.setVelocityY(-200);
-        else if (this.cursors.down.isDown) this.player.setVelocityY(200);
+  this.player.setVelocity(0);
+  const d = this.dirRef.current || {};
+  const speed = 200;
+  if (this.cursors.left.isDown || d.left) this.player.setVelocityX(-speed);
+  else if (this.cursors.right.isDown || d.right) this.player.setVelocityX(speed);
+  if (this.cursors.up.isDown || d.up) this.player.setVelocityY(-speed);
+  else if (this.cursors.down.isDown || d.down) this.player.setVelocityY(speed);
 
         this.enemies.getChildren().forEach(enemy => {
           if (enemy.update) enemy.update();
@@ -220,16 +224,20 @@ function Game2({ db }) {
     }
 
     // Create scene instance passing updateLeaderboard callback
-    const enemyScene = new EnemyGameScene(updateLeaderboard);
+  const enemyScene = new EnemyGameScene(updateLeaderboard, directionRef);
 
     const config = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
       parent: gameRef.current,
+      scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 800,
+        height: 600
+      },
       physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
       scene: [enemyScene],
-      backgroundColor: '#07203a',
+      transparent: true
     };
 
     if (gameInstance.current) {
@@ -239,7 +247,15 @@ function Game2({ db }) {
 
     gameInstance.current = new Phaser.Game(config);
 
+    const handleResize = () => {
+      if (gameInstance.current) {
+        gameInstance.current.scale.refresh();
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
     return () => {
+      window.removeEventListener('resize', handleResize);
       if (gameInstance.current) {
         gameInstance.current.destroy(true);
         gameInstance.current = null;
@@ -249,10 +265,50 @@ function Game2({ db }) {
 
   return (
     <div className="game2-container">
-      <div>
-        <div ref={gameRef} key={gameKey} style={{ width: 800, height: 600 }} />
-        <button className="game2-reset-btn" onClick={handleReset}>Reset</button>
-        <button className="game2-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
+      <div className="game2-left">
+        <div className="game2-stage" ref={gameRef} key={gameKey} />
+        <div className="game2-btn-row">
+          <button className="game2-reset-btn" onClick={handleReset}>Reset</button>
+          <button className="game2-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
+        </div>
+        <div className="game2-touch-controls" aria-hidden="false">
+          <div className="game2-dpad">
+            <button
+              className="g2-btn left"
+              onTouchStart={() => directionRef.current.left = true}
+              onTouchEnd={() => directionRef.current.left = false}
+              onMouseDown={() => directionRef.current.left = true}
+              onMouseUp={() => directionRef.current.left = false}
+              onMouseLeave={() => directionRef.current.left = false}
+            >◀</button>
+            <div className="g2-vert">
+              <button
+                className="g2-btn up"
+                onTouchStart={() => directionRef.current.up = true}
+                onTouchEnd={() => directionRef.current.up = false}
+                onMouseDown={() => directionRef.current.up = true}
+                onMouseUp={() => directionRef.current.up = false}
+                onMouseLeave={() => directionRef.current.up = false}
+              >▲</button>
+              <button
+                className="g2-btn down"
+                onTouchStart={() => directionRef.current.down = true}
+                onTouchEnd={() => directionRef.current.down = false}
+                onMouseDown={() => directionRef.current.down = true}
+                onMouseUp={() => directionRef.current.down = false}
+                onMouseLeave={() => directionRef.current.down = false}
+              >▼</button>
+            </div>
+            <button
+              className="g2-btn right"
+              onTouchStart={() => directionRef.current.right = true}
+              onTouchEnd={() => directionRef.current.right = false}
+              onMouseDown={() => directionRef.current.right = true}
+              onMouseUp={() => directionRef.current.right = false}
+              onMouseLeave={() => directionRef.current.right = false}
+            >▶</button>
+          </div>
+        </div>
       </div>
       <div className="game2-leaderboard">
         <h2>Leaderboard</h2>

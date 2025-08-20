@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read-only leaderboard collections, write restricted (example logic)
+      match /leaderboard2048/{docId} {
+        allow read: if true;
+        allow create: if request.time < timestamp.date(2100,1,1)
+          && request.resource.data.keys().hasOnly(['score'])
+          && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 1000000;
+        // Disallow client updates / deletes (server / admin only)
+        allow update, delete: if false;
+      }
+
+      match /leaderboardEnemyGame/{docId} {
+        allow read: if true;
+        allow create: if request.time < timestamp.date(2100,1,1)
+          && request.resource.data.keys().hasOnly(['score'])
+          && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 1000000;
+        allow update, delete: if false;
+      }
+
+      match /leaderboardFlappy/{docId} {
+        allow read: if true;
+        allow create: if request.time < timestamp.date(2100,1,1)
+          && request.resource.data.keys().hasOnly(['name','score'])
+          && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 1000000
+          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 20;
+        allow update, delete: if false;
+      }
+
+      match /{document=**} { allow read, write: if false; }
+  }
+}

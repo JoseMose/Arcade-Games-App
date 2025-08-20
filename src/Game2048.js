@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Phaser from 'phaser';
 import { collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import './Game2048.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Game2048({ db }) {
-  const gameRef = useRef(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [gameKey, setGameKey] = useState(0);
   const navigate = useNavigate();
@@ -55,17 +54,17 @@ function Game2048({ db }) {
   }, [fetchLeaderboard]);
 
   useEffect(() => {
-    if (!gameRef.current) return;
-
     class Game2048Scene extends Phaser.Scene {
       constructor() {
         super('2048');
         this.size = 4;
         this.board = [];
         this.score = 0;
-        this.tileSize = 100;
-        this.offsetX = 150;
-        this.offsetY = 100;
+  // Offsets & tileSize will be computed in create() once canvas size is known
+  this.tileSize = 0;
+  this.offsetX = 0;
+  this.offsetY = 0;
+  this.canvasSize = 0;
         this.tileColors = {
           0: 0xbbada0,
           2: 0xeee4da,
@@ -83,14 +82,61 @@ function Game2048({ db }) {
         this.inputLocked = false;
       }
       create() {
+  // Compute sizing dynamically based on actual canvas size
+  this.canvasSize = this.sys.game.config.width; // square
+  // Leave some vertical room for the score text on top (only if larger screens)
+  const topPadding = this.canvasSize > 480 ? 80 : 50; // add a bit more gap above board on small screens
+  // Tile size chosen so board fits with small gaps; use (size * tileSize + gap*(size+1)) ~= canvasSize - side padding
+  // We'll model gap as 12px and side padding as 0 horizontally (centered)
+  const gap = 12;
+  this.tileSize = Math.floor((this.canvasSize - gap * (this.size + 1)) / this.size);
+  const boardPixel = this.tileSize * this.size + gap * (this.size + 1);
+  this.offsetX = Math.floor((this.canvasSize - boardPixel) / 2) + gap; // inner left after initial gap
+  this.offsetY = topPadding; // push board down for score text visibility
+        this.gap = gap;
+
+        // Best score persistence
+        const storedBest = parseInt(localStorage.getItem('best2048Score') || '0', 10);
+        this.bestScore = isNaN(storedBest) ? 0 : storedBest;
+
         this.initBoard();
         this.drawBoard();
         this.input.keyboard.on('keydown', this.handleInput, this);
-        this.scoreText = this.add.text(400, 50, 'Score: 0', {
+  this.scoreText = this.add.text(this.canvasSize / 2, 20, 'Score: 0', {
           fontSize: '32px',
-          color: '#222',
-          fontFamily: '"Press Start 2P", Arial, sans-serif'
+          color: '#ffffff',
+          fontFamily: '"Press Start 2P", Arial, sans-serif',
+          stroke: '#222', // Optional: add a dark outline
+          strokeThickness: 4
         }).setOrigin(0.5);
+  this.bestScoreText = this.add.text(this.canvasSize / 2, 44, 'Best: ' + this.bestScore, {
+          fontSize: '20px',
+          color: '#ffeeff',
+          fontFamily: '"Press Start 2P", Arial, sans-serif',
+          stroke: '#222',
+          strokeThickness: 3
+        }).setOrigin(0.5);
+
+        // --- Swipe support for mobile ---
+        let startX = null, startY = null;
+        this.input.on('pointerdown', pointer => {
+          startX = pointer.x;
+          startY = pointer.y;
+        });
+        this.input.on('pointerup', pointer => {
+          if (startX === null || startY === null) return;
+          const dx = pointer.x - startX;
+          const dy = pointer.y - startY;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 30) this.handleInput({ code: 'ArrowRight' });
+            else if (dx < -30) this.handleInput({ code: 'ArrowLeft' });
+          } else {
+            if (dy > 30) this.handleInput({ code: 'ArrowDown' });
+            else if (dy < -30) this.handleInput({ code: 'ArrowUp' });
+          }
+          startX = null;
+          startY = null;
+        });
       }
       async resetGame() {
         if (this.score > 0) {
@@ -145,23 +191,25 @@ function Game2048({ db }) {
         if (this.numbers) this.numbers.forEach(row => row.forEach(num => num && num.destroy()));
         this.tiles = [];
         this.numbers = [];
+        const numberFontSize = Math.max(14, Math.min(64, Math.floor(this.tileSize * 0.42)));
         for (let r = 0; r < this.size; r++) {
           this.tiles[r] = [];
           this.numbers[r] = [];
           for (let c = 0; c < this.size; c++) {
             const value = this.board[r][c];
-            const color = this.tileColors[value] || 0x3c3a32;
+            const safeValue = typeof value === 'number' ? value : 0;
+            const color = this.tileColors[safeValue] || 0x3c3a32;
             const x = this.offsetX + c * this.tileSize;
             const y = this.offsetY + r * this.tileSize;
-            const rect = this.add.rectangle(x, y, this.tileSize - 10, this.tileSize - 10, color).setOrigin(0);
+            const rect = this.add.rectangle(x, y, this.tileSize - this.gap, this.tileSize - this.gap, color).setOrigin(0);
             this.tiles[r][c] = rect;
-            if (value) {
+            if (safeValue) {
               const num = this.add.text(
-                x + (this.tileSize - 10) / 2,
-                y + (this.tileSize - 10) / 2,
-                value,
+                x + (this.tileSize - this.gap) / 2,
+                y + (this.tileSize - this.gap) / 2,
+                safeValue,
                 {
-                  fontSize: '32px',
+                  fontSize: numberFontSize + 'px',
                   color: '#222',
                   fontFamily: '"Press Start 2P", Arial, sans-serif'
                 }
@@ -189,10 +237,13 @@ function Game2048({ db }) {
           await this.animateMoves(moveResult.moves);
           this.addRandomTile();
           this.drawBoard();
+          if (moveResult.mergedTargets && moveResult.mergedTargets.length) {
+            this.pulseMergedTiles(moveResult.mergedTargets);
+          }
           this.inputLocked = false;
           if (this.isGameOver()) {
             if (!this.gameOverText) {
-              this.gameOverText = this.add.text(400, 570, 'Game Over!', {
+              this.gameOverText = this.add.text(this.canvasSize / 2, this.canvasSize - 30, 'Game Over!', {
                 fontSize: '40px',
                 color: '#b00',
                 fontFamily: '"Press Start 2P", Arial, sans-serif'
@@ -203,16 +254,43 @@ function Game2048({ db }) {
           }
         }
       }
+      pulseMergedTiles(mergedTargets) {
+        mergedTargets.forEach(t => {
+          const rect = this.tiles?.[t.r]?.[t.c];
+          const txt = this.numbers?.[t.r]?.[t.c];
+            if (!rect || !txt) return;
+            // Lighten rectangle color temporarily
+            const original = rect.fillColor;
+            const lighten = (hex) => {
+              const r = Math.min(255, ((hex >> 16) & 255) + 48);
+              const g = Math.min(255, ((hex >> 8) & 255) + 48);
+              const b = Math.min(255, (hex & 255) + 48);
+              return (r << 16) | (g << 8) | b;
+            };
+            rect.setFillStyle(lighten(original));
+            this.time.delayedCall(140, () => rect.setFillStyle(original));
+            // Pulse the number text
+            txt.setScale(0.8);
+            this.tweens.add({
+              targets: txt,
+              scale: 1.3,
+              duration: 130,
+              yoyo: true,
+              ease: 'Cubic.easeOut'
+            });
+        });
+      }
       async animateMoves(moves) {
         const anims = [];
+        const numberFontSize = Math.max(14, Math.min(64, Math.floor(this.tileSize * 0.42)));
         moves.forEach(move => {
           const { from, to, value, merged } = move;
-          const fromX = this.offsetX + from[1] * this.tileSize + (this.tileSize - 10) / 2;
-          const fromY = this.offsetY + from[0] * this.tileSize + (this.tileSize - 10) / 2;
-          const toX = this.offsetX + to[1] * this.tileSize + (this.tileSize - 10) / 2;
-          const toY = this.offsetY + to[0] * this.tileSize + (this.tileSize - 10) / 2;
+          const fromX = this.offsetX + from[1] * this.tileSize + (this.tileSize - this.gap) / 2;
+          const fromY = this.offsetY + from[0] * this.tileSize + (this.tileSize - this.gap) / 2;
+          const toX = this.offsetX + to[1] * this.tileSize + (this.tileSize - this.gap) / 2;
+          const toY = this.offsetY + to[0] * this.tileSize + (this.tileSize - this.gap) / 2;
           const tempText = this.add.text(fromX, fromY, value, {
-            fontSize: '32px',
+            fontSize: numberFontSize + 'px',
             color: '#222',
             fontFamily: '"Press Start 2P", Arial, sans-serif'
           }).setOrigin(0.5);
@@ -245,6 +323,7 @@ function Game2048({ db }) {
       move(direction) {
         let moved = false;
         let moves = [];
+  let mergedTargets = [];
         let size = this.size;
         let board = this.board;
         // eslint-disable-next-line no-unused-vars
@@ -281,6 +360,12 @@ function Game2048({ db }) {
               board[nr][nc] = 0;
               merged[tr][tc] = true;
               moves.push({ from: [nr, nc], to: [tr, tc], value: board[tr][tc] / 2, merged: true });
+      mergedTargets.push({ r: tr, c: tc, value: board[tr][tc] });
+                if (this.score > this.bestScore) {
+                  this.bestScore = this.score;
+                  localStorage.setItem('best2048Score', String(this.bestScore));
+                  if (this.bestScoreText) this.bestScoreText.setText('Best: ' + this.bestScore);
+                }
               moved = true;
               break;
             } else {
@@ -288,7 +373,7 @@ function Game2048({ db }) {
             }
           }
         });
-        return { moved, moves };
+    return { moved, moves, mergedTargets };
       }
       isGameOver() {
         for (let r = 0; r < this.size; r++) {
@@ -304,32 +389,50 @@ function Game2048({ db }) {
       }
     }
 
+    const isMobile = window.innerWidth < 700;
+    const canvasSize = isMobile ? Math.floor(window.innerWidth * 0.96) : 500;
     const config = {
       type: Phaser.AUTO,
-      width: 600,
-      height: 650,
-      backgroundColor: '#faf8ef',
+      width: canvasSize,
+      height: canvasSize,
+      parent: 'game2048-board',
       scene: [Game2048Scene],
-      parent: 'game2048-board' // <-- Use the string ID
+      transparent: true // Allow underlying gradient to show through
     };
     const game = new Phaser.Game(config);
+
+    // Handle window resize: if width category or size changes significantly, recreate game
+    const handleResize = () => {
+      const nowIsMobile = window.innerWidth < 700;
+      const targetSize = nowIsMobile ? Math.floor(window.innerWidth * 0.96) : 500;
+      // If size differs by > 40px trigger re-mount
+      if (Math.abs(targetSize - game.config.width) > 40) {
+        setGameKey(k => k + 1);
+      }
+    };
+    window.addEventListener('resize', handleResize);
     return () => {
       game.destroy(true);
+      window.removeEventListener('resize', handleResize);
     };
   }, [gameKey, updateLeaderboard]);
 
   return (
     <div className="game2048-main">
-      <div className="game2048-center">
-        <div id="game2048-board" style={{ width: 600, height: 650 }}></div>
-        <button className="game2048-reset-btn" onClick={handleReset}>Reset</button>
-        <button className="game2048-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
+      <div className="game2048-row">
+        <div className="game2048-center">
+          <div id="game2048-board"></div>
+          <div className="game2048-btn-row">
+            <button className="game2048-reset-btn" onClick={handleReset}>Reset</button>
+            <button className="game2048-reset-btn" onClick={() => navigate('/')}>Back to Home</button>
+          </div>
+        </div>
         <div className="game2048-leaderboard">
           <h2>Leaderboard</h2>
           <ol>
             {leaderboard.length === 0 && <li>No scores yet</li>}
             {leaderboard.map((entry, idx) => (
-              <li key={idx}>{entry.score}</li>
+              <li key={idx}>{entry}</li>
             ))}
           </ol>
         </div>

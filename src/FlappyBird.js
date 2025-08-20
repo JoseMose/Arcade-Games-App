@@ -22,12 +22,17 @@ export default class FlappyBird extends Phaser.Scene {
   }
 
   create() {
-    this.score = 0;
-    this.gameOver = false;
+  this.score = 0;
+  this.gameOver = false;
 
-    this.add.image(400, 300, 'background').setScale(2);
+  const W = this.scale.width;
+  const H = this.scale.height;
 
-    this.scoreText = this.add.text(400, 40, 'Score: 0', {
+  // Background centered & scaled to fill (simple stretch)
+  const bg = this.add.image(W / 2, H / 2, 'background');
+  bg.setDisplaySize(W, H);
+
+  this.scoreText = this.add.text(W / 2, 40, 'Score: 0', {
       fontSize: '32px',
       color: '#fff',
       fontFamily: 'Arial',
@@ -35,7 +40,7 @@ export default class FlappyBird extends Phaser.Scene {
       strokeThickness: 4
     }).setOrigin(0.5);
 
-    this.bird = this.physics.add.sprite(200, 300, 'bird').setScale(0.10);
+  this.bird = this.physics.add.sprite(W * 0.25, H * 0.5, 'bird').setScale(Math.min(W, H) * 0.00018 * 100);
     this.bird.setCollideWorldBounds(true);
 
     this.bird.body.setSize(
@@ -51,6 +56,8 @@ export default class FlappyBird extends Phaser.Scene {
       if (!this.gameOver) {
         this.bird.body.allowGravity = true;
         this.bird.setVelocityY(-250);
+      } else {
+        this.scene.restart();
       }
     });
 
@@ -87,17 +94,20 @@ export default class FlappyBird extends Phaser.Scene {
   spawnSpikesAndCoin() {
     if (this.gameOver) return;
 
-    const gap = 120;
-    const spikeWidth = 24;
-    const minGapY = 100 + gap / 2;
-    const maxGapY = 500 - gap / 2;
+  const W = this.scale.width;
+  const H = this.scale.height;
+  const baseGap = 120;
+  const gap = H < 500 ? baseGap * (H / 600) * 0.9 : baseGap;
+  const spikeWidth = Math.max(18, Math.min(32, W * 0.03));
+  const minGapY = 100 * (H / 600) + gap / 2;
+  const maxGapY = (H - 100 * (H / 600)) - gap / 2;
     const gapY = Phaser.Math.Between(minGapY, maxGapY);
 
-    const topSpikeHeight = Math.round(gapY - gap / 2);
-    const bottomSpikeHeight = 600 - gap - topSpikeHeight;
+  const topSpikeHeight = Math.round(gapY - gap / 2);
+  const bottomSpikeHeight = H - gap - topSpikeHeight;
 
     if (topSpikeHeight > 0) {
-      const topSpike = this.spikes.create(800, 0, 'spikeTop')
+  const topSpike = this.spikes.create(W + spikeWidth, 0, 'spikeTop')
         .setOrigin(0.5, 0)
         .setDisplaySize(spikeWidth, topSpikeHeight);
       topSpike.body.setVelocityX(-200);
@@ -106,7 +116,7 @@ export default class FlappyBird extends Phaser.Scene {
     }
 
     if (bottomSpikeHeight > 0) {
-      const bottomSpike = this.spikes.create(800, 600, 'spikeBottom')
+  const bottomSpike = this.spikes.create(W + spikeWidth, H, 'spikeBottom')
         .setOrigin(0.5, 1)
         .setDisplaySize(spikeWidth, bottomSpikeHeight);
       bottomSpike.body.setVelocityX(-200);
@@ -114,7 +124,7 @@ export default class FlappyBird extends Phaser.Scene {
       bottomSpike.body.immovable = true;
     }
 
-    const coin = this.coins.create(800, gapY, 'goldCoin')
+  const coin = this.coins.create(W + spikeWidth, gapY, 'goldCoin')
       .setOrigin(0.5)
       .setScale(0.08);
     coin.body.setVelocityX(-200);
@@ -170,10 +180,11 @@ export default class FlappyBird extends Phaser.Scene {
       this.handleGameOver();
     }
 
-    if (this.bird.y >= 600 - this.bird.displayHeight / 2 && !this.gameOver) {
+    const H = this.scale.height;
+    if (this.bird.y >= H - this.bird.displayHeight / 2 && !this.gameOver) {
       this.bird.setVelocityY(0);
       this.bird.body.allowGravity = false;
-      this.bird.y = 600 - this.bird.displayHeight / 2;
+      this.bird.y = H - this.bird.displayHeight / 2;
       this.bird.angle = 90;
       this.handleGameOver();
     }

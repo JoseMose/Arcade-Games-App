@@ -4,7 +4,6 @@ import { getFirestore, collection } from 'firebase/firestore';
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "arcade-game-app.firebaseapp.com",
-  databaseURL: "https://arcade-game-app-default-rtdb.firebaseio.com",
   projectId: "arcade-game-app",
   storageBucket: "arcade-game-app.appspot.com",
   messagingSenderId: "974397063956",

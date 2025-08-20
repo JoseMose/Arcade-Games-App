@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* Game2.css */
+body, html { overscroll-behavior: none; }
 
 .game2-container {
   font-family: 'Press Start 2P', cursive, Arial, sans-serif;
@@ -8,46 +8,79 @@
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
-  gap: 40px;
-  margin-top: 40px;
+  gap: 56px;
   width: 100vw;
+  min-height: 100vh;
   box-sizing: border-box;
+  padding: 40px clamp(12px, 3vw, 48px) 64px;
+  background: linear-gradient(135deg,#ffecd2 0%, #fcb69f 100%);
 }
 
-@media (max-width: 900px) {
-  .game2-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    margin-top: 16px;
-  }
-  .game2-leaderboard {
-    margin-top: 0;
-  }
-}
+.game2-left { display:flex; flex-direction:column; align-items:center; }
+
+.game2-stage { width:100%; max-width:800px; aspect-ratio: 4 / 3; position:relative; }
+.game2-stage canvas { width:100% !important; height:100% !important; border-radius:16px; box-shadow:0 8px 32px #ff008022; background:#07203a !important; }
+
+.game2-btn-row { display:flex; gap:18px; margin-top:18px; flex-wrap:wrap; justify-content:center; }
 
 .game2-leaderboard {
   min-width: 220px;
-  background: #222;
+  background: linear-gradient(90deg,#7928ca,#ff0080);
   color: #fff;
-  border-radius: 12px;
-  padding: 16px 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 18px;
+  padding: 20px 20px 24px;
+  box-shadow: 0 6px 28px #ff008055;
 }
+
+.game2-leaderboard h2 { margin-top:0; text-align:center; letter-spacing:1px; text-shadow:0 0 6px #fff,0 0 14px #ff0080; }
+.game2-leaderboard ol { padding-left:34px; margin:0; }
 
 .game2-reset-btn {
   font-family: inherit;
-  font-size: 1.2em;
-  padding: 0.75em 2em;
-  margin: 0.5em 0.5em 0 0;
-  border-radius: 8px;
+  font-size: 0.95em;
+  padding: 0.75em 1.6em;
+  border-radius: 10px;
   border: none;
-  background: #ff9800;
+  background: linear-gradient(90deg,#ff0080,#7928ca);
   color: #fff;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow:0 4px 14px #ff008044;
+  letter-spacing:1px;
+}
+.game2-reset-btn:hover { transform:translateY(-2px) scale(1.04); box-shadow:0 6px 20px #ff008055; }
+
+/* Touch controls */
+.game2-touch-controls { margin-top:28px; }
+.game2-dpad { display:flex; flex-direction:row; align-items:center; justify-content:center; gap:34px; }
+.game2-dpad .g2-vert { display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center; }
+.g2-btn { width:56px; height:56px; border-radius:12px; border:none; background:linear-gradient(135deg,#ff80bf,#7928ca); color:#fff; font-size:22px; font-family:'Press Start 2P',cursive; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px #ff008044; transition:transform .12s, box-shadow .12s; }
+.g2-btn:active { transform:scale(.9); box-shadow:0 2px 6px #ff008022; }
+
+@media (min-width: 901px) {
+  .game2-touch-controls { display:none; }
 }
 
-.game2-reset-btn:hover {
-  background: #e65100;
+@media (max-width: 540px) {
+  .game2-dpad { gap:28px; }
+  .game2-dpad .g2-vert { gap:10px; }
+  .g2-btn { width:48px; height:48px; font-size:18px; }
+}
+
+@media (max-width: 1100px) {
+  .game2-container { gap:32px; }
+}
+
+@media (max-width: 900px) {
+  .game2-container { flex-direction:column; padding: calc(70px + env(safe-area-inset-top,0)) 12px 48px; gap:36px; }
+  .game2-stage { width:100%; max-width: 100%; }
+  .game2-leaderboard { width:100%; }
+  .game2-btn-row { width:100%; }
+}
+
+@media (max-width: 540px) {
+  .game2-stage { aspect-ratio: 4 / 3; }
+  .game2-reset-btn { flex:1; text-align:center; }
+  .game2-btn-row { gap:12px; }
+  .game2-leaderboard ol { padding-left:26px; }
 }
